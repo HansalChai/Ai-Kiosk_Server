@@ -14,7 +14,7 @@ or  python3 -m venv venv
 
 2. 라이브러리 설치
 
-지금 설치한 건 'Django', 'djangorestframework', 'django-debug-toolbar' 이 세가지 밖에 없어서 requirements.txt에 넣어놨습니다.
+지금 설치한 건 'Django', 'djangorestframework' 이 두 개 밖에 없어서 requirements.txt에 넣어놨습니다.
 
 pip install -r requirements.txt
 
