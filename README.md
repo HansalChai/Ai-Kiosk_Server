@@ -69,10 +69,10 @@ requirements랑 settings.py는 common, dev, prod 나눠서 종속성 관리 해�
 
 # pip install 중요!
 
-|| pip install -r requirements.txt
-|| -> git pull 받으면 꼭 한 번 실행해주기
+pip install -r requirements.txt
+-> git pull 받으면 꼭 한 번 실행해주기
 
 # ADD LIBRARY
 
-|| pip freeze > requirements.txt
-|| -> 라이브러리 추가할 때마다 실행해주기
+pip freeze > requirements.txt
+-> 라이브러리 추가할 때마다 실행해주기
