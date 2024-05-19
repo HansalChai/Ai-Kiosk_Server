@@ -49,11 +49,24 @@ INSTALLED_APPS = [
     #Thrid party apps
     'rest_framework',
     'rest_framework_simplejwt',    
+    
+    'rest_framework.authtoken',
+    'dj_rest_auth',
+    'dj_rest_auth.registration',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'corsheaders',
+    
+    #Local apps
+    'accounts',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -81,6 +94,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'kiosk_server.wsgi.application'
+
+CORS_ALLOW_CREDENTIALS = True
 
 
 # Database
@@ -142,7 +157,7 @@ REST_FRAMEWORK = {
 }
 REST_USE_JWT = True
 
-# AUTH_USER_MODEL = "accounts.User"
+AUTH_USER_MODEL = "accounts.User"
 
 SITE_ID = 1
 ACCOUNT_USER_MODEL_USERNAME_FIELD = 'username'
@@ -177,5 +192,5 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
     'USER_ID_FIELD': 'id',
     'USER_ID_CLAIM': 'user_id',
-    # "TOKEN_USER_CLASS": AUTH_USER_MODEL,
+    "TOKEN_USER_CLASS": AUTH_USER_MODEL,
 }
