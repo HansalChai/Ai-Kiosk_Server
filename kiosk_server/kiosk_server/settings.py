@@ -13,20 +13,26 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 import datetime
 import os
+import environ
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+env = environ.Env(DEBUG=(bool, True))
+
+environ.Env.read_env(
+    env_file=os.path.join(BASE_DIR, '.env')
+)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-j^05in*@1j4hg@*piw8ohva)$f8!8$t3u#^gnj6kjeao%5lm(1'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG')
 
 ALLOWED_HOSTS = []
 
@@ -103,8 +109,12 @@ CORS_ALLOW_CREDENTIALS = True
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': env('DB_NAME'),
+        'USER' : env('DB_USER'),
+        'PASSWORD' : env('DB_PASSWORD'), # 설정한 비밀번호로 적어주면 된다.
+        'HOST' : env('DB_HOST'),
+        'PORT' : env('DB_PORT'),
     }
 }
 
@@ -157,7 +167,7 @@ REST_FRAMEWORK = {
 }
 REST_USE_JWT = True
 
-AUTH_USER_MODEL = "accounts.User"
+AUTH_USER_MODEL = "accounts.CustomUser"
 
 SITE_ID = 1
 ACCOUNT_USER_MODEL_USERNAME_FIELD = 'username'
@@ -170,8 +180,8 @@ ACCOUNT_UNIQUE_EMAIL = False
 REST_AUTH = {
     'USE_JWT': True,
     'JWT_AUTH_HTTPONLY': True,
-    'JWT_AUTH_COOKIE': 'pathfinder-auth',
-    'JWT_AUTH_REFRESH_COOKIE': 'pathfinder-refresh-auth',
+    'JWT_AUTH_COOKIE': 'ezkkook-auth',
+    'JWT_AUTH_REFRESH_COOKIE': 'ezkkook-refresh-auth',
     'JWT_AUTH_COOKIE_USE_CSRF': False,
     'JWT_AUTH_SECURE': True,
     'SESSION_LOGIN': False,
@@ -194,3 +204,10 @@ SIMPLE_JWT = {
     'USER_ID_CLAIM': 'user_id',
     "TOKEN_USER_CLASS": AUTH_USER_MODEL,
 }
+
+REST_AUTH_REGISTER_SERIALIZERS = {
+    'REGISTER_SERIALIZER': 'accounts.serializers.CustomRegisterSerializer'
+}
+
+ACCOUNT_ADAPTER = 'accounts.adapters.CustomAccountAdapter'
+
