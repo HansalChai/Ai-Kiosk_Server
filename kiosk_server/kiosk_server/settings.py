@@ -167,7 +167,7 @@ REST_FRAMEWORK = {
 }
 REST_USE_JWT = True
 
-AUTH_USER_MODEL = "accounts.User"
+AUTH_USER_MODEL = "accounts.CustomUser"
 
 SITE_ID = 1
 ACCOUNT_USER_MODEL_USERNAME_FIELD = 'username'
@@ -204,3 +204,10 @@ SIMPLE_JWT = {
     'USER_ID_CLAIM': 'user_id',
     "TOKEN_USER_CLASS": AUTH_USER_MODEL,
 }
+
+REST_AUTH_REGISTER_SERIALIZERS = {
+    'REGISTER_SERIALIZER': 'accounts.serializers.CustomRegisterSerializer'
+}
+
+ACCOUNT_ADAPTER = 'accounts.adapters.CustomAccountAdapter'
+
