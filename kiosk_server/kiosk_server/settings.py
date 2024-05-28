@@ -209,5 +209,9 @@ REST_AUTH_REGISTER_SERIALIZERS = {
     'REGISTER_SERIALIZER': 'accounts.serializers.CustomRegisterSerializer'
 }
 
+AUTHENTICATION_BACKENDS = (
+    'accounts.backends.CustomUserBackend',
+)
+
 ACCOUNT_ADAPTER = 'accounts.adapters.CustomAccountAdapter'
 
