@@ -7,3 +7,4 @@ class CustomAccountAdapter(DefaultAccountAdapter):
         user_field(user, 'name', request.data.get('name', ''))
         user.save()
         return user
+    
