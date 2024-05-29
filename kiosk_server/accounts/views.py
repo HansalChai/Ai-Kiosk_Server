@@ -27,11 +27,10 @@ class CustomUserDetailView(APIView):
         if name:
             user.name = name
         if password:
-            user.set_password(password)  # 비밀번호를 해시하여 저장합니다.
+            user.set_password(password)
 
         user.save()
 
-        # 사용자 정보를 다시 불러와서 직렬화합니다.
         serializer = CustomUserSerializer(user)
         
         return Response({'message': '프로필 수정 완료.', 'data': serializer.data}, status=status.HTTP_200_OK)

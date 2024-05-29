@@ -138,6 +138,7 @@ celerybeat.pid
 env/
 venv/
 ENV/
+ezkkook/
 env.bak/
 venv.bak/
 
