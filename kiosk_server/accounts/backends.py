@@ -1,7 +1,7 @@
 from django.contrib.auth.backends import ModelBackend
 from .models import CustomUser
-from rest_framework.response import Response, status
-
+from rest_framework.response import Response
+from rest_framework import status
 
 class CustomUserBackend(ModelBackend):
     def authenticate(self, request, username=None, password=None, **kwargs):
