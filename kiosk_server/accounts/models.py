@@ -20,3 +20,15 @@ class Membership(models.Model):
 
     class Meta:
         db_table = 'Membership'
+
+class Order(models.Model):
+    ID = models.AutoField(primary_key=True, null=False)
+    Membership_ID = models.ForeignKey(Membership, on_delete=models.CASCADE)
+    total_price = models.IntegerField(null=False)
+    order_num = models.IntegerField(null=False)
+    order_age = models.IntegerField(null=False)
+    package = models.BooleanField()
+    IsDeleted = models.BooleanField(default=False)
+    
+    class Meta:
+        db_table = 'Order'
