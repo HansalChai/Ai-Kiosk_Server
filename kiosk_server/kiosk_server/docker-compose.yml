@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0.25
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 990423
+      MYSQL_DATABASE: hansalchai
+      MYSQL_USER: root
+      MYSQL_PASSWORD: 990423
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+volumes:
+  mysql_data:
