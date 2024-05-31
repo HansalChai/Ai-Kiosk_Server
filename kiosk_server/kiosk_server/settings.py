@@ -195,7 +195,7 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,
 
     'ALGORITHM': 'HS256',
-    'SIGNING_KEY': 'django-insecure-j^05in*@1j4hg@*piw8ohva)$f8!8$t3u#^gnj6kjeao%5lm(1',
+    'SIGNING_KEY': SECRET_KEY,
     'VERIFYING_KEY': None,
     'AUDIENCE': None,
     'ISSUER': None,
@@ -215,5 +215,3 @@ AUTHENTICATION_BACKENDS = (
 )
 
 ACCOUNT_ADAPTER = 'accounts.adapters.CustomAccountAdapter'
-
-APPEND_SLASH = False
