@@ -116,6 +116,9 @@ DATABASES = {
         'PASSWORD' : env('DB_PASSWORD'), # 설정한 비밀번호로 적어주면 된다.
         'HOST' : env('DB_HOST'),
         'PORT' : env('DB_PORT'),
+        'OPTIONS': {
+            'init_command': 'SET sql_mode="STRICT_TRANS_TABLES"'
+        },
     }
 }
 
