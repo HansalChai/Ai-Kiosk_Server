@@ -63,9 +63,21 @@ class MenuListCreateView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         category_id = self.kwargs['category_id']
-        return Menu.objects.filter(category_ID=category_id)
+        return Menu.objects.filter(category_ID=category_id, IsDeleted=False)
 
     def perform_create(self, serializer):
         category_id = self.kwargs['category_id']
         category = Category.objects.get(pk=category_id)
         serializer.save(category_ID=category)
+
+class MenuDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Menu.objects.all()
+    serializer_class = MenuSerializer
+
+    def get_queryset(self):
+        category_id = self.kwargs['category_id']
+        return Menu.objects.filter(category_ID=category_id)
+    
+    def perform_destroy(self, instance):
+        instance.IsDeleted = True
+        instance.save()
