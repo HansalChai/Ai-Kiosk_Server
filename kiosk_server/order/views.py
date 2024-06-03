@@ -63,7 +63,7 @@ class MenuListCreateView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         category_id = self.kwargs['category_id']
-        return Menu.objects.filter(category_ID=category_id)
+        return Menu.objects.filter(category_ID=category_id, IsDeleted=False)
 
     def perform_create(self, serializer):
         category_id = self.kwargs['category_id']
