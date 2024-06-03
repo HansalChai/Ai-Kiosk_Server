@@ -15,7 +15,7 @@ class CustomUserDetailView(APIView):
     
     def post(self, request):
         user = request.user
-        user.IsDeleted = True
+        user.is_deleted = True
         user.save()
         return Response({'message': '사용자 프로필이 삭제되었습니다.'}, status=status.HTTP_200_OK)
 
@@ -65,9 +65,9 @@ class MembershipView(APIView):
             serializer = MembershipSerializer(memberships, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
     
-    def patch(self, request, membership_ID):
+    def patch(self, request, id):
         try:
-            membership = Membership.objects.get(ID=membership_ID)
+            membership = Membership.objects.get(id=id)
         except Membership.DoesNotExist:
             return Response({'error': '존재하지 않는 멤버십입니다.'}, status=status.HTTP_404_NOT_FOUND)
 

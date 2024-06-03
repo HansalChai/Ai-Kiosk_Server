@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CategoryListAddView, CategoryDeleteView, CategoryUpdateView, OptionsListAddView, OptionUpdateView, OptionDeleteView, MenuListCreateView, MenuDetailView
+from .views import CategoryListAddView, CategoryDeleteView, CategoryUpdateView, OptionsListAddView, OptionUpdateView, OptionDeleteView, MenuListCreateView, MenuDetailView, OrderAmountView
 
 urlpatterns = [
     # 카테고리 관련 API url
@@ -15,5 +15,7 @@ urlpatterns = [
     # 메뉴 관련 API url
     path('categories/<int:category_id>/menus/', MenuListCreateView.as_view(), name='menu-list-create'),
     path('categories/<int:category_id>/menus/<int:pk>/', MenuDetailView.as_view(), name='menu-detail'),
+    
+    path('order/order_amount/', OrderAmountView.as_view(), name='order-amount'),
 
 ]

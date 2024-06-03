@@ -8,7 +8,7 @@ class CustomUserBackend(ModelBackend):
         try:
             user = CustomUser.objects.get(username=username)
             # IsDeleted가 True인 경우 None을 반환하여 로그인을 방지하도록 함
-            if user.IsDeleted:
+            if user.is_deleted:
                 Response({'message': '존재하지 않는 프로필입니다.'}, status=status.HTTP_400_BAD_REQUEST)
                 return None
             if user.check_password(password) and self.user_can_authenticate(user):
