@@ -1,15 +1,39 @@
 from django.db import models
 from accounts.models import Membership, CustomUser
 
+# 아래는 카테고리, 옵션, 옵션 선택지 모델
 class Category(models.Model):
     category_id = models.AutoField(primary_key=True)
     category_name = models.CharField(max_length=255)
+    owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, default=1) # onwer별로 카테고리 관리하기 위한 모델
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)
     IsDeleted = models.BooleanField(default=False)
     
     def __str__(self):
         return self.category_name
+
+class Options(models.Model):
+    option_ID = models.AutoField(primary_key=True, null=False)
+    category_ID = models.ForeignKey(Category, on_delete=models.CASCADE)
+    order_menu_ID = models.ForeignKey('Order_menu', on_delete=models.CASCADE, null=True, blank=True)
+    owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, default=1)
+    option_name = models.CharField(max_length=30, null=False)
+    IsDeleted = models.BooleanField(default=False)
+    createdAt = models.DateTimeField(auto_now_add=True)
+    updatedAt = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return self.name
+
+class OptionChoice(models.Model):
+    choice_id = models.AutoField(primary_key=True)
+    option = models.ForeignKey(Options, related_name='choices', on_delete=models.CASCADE)
+    choice_name = models.CharField(max_length=100)
+    extra_cost = models.IntegerField(default=0)
+
+    class Meta:
+        db_table = 'option_choice'
 
 class Menu(models.Model):
     ID = models.AutoField(primary_key=True, null=False)
@@ -62,16 +86,3 @@ class Order_menu(models.Model):
     
     class Meta:
         db_table = 'Order_menu'
-
-class Options(models.Model):
-    ID = models.AutoField(primary_key=True, null=False)
-    category_ID = models.ForeignKey(Category, on_delete=models.CASCADE)
-    order_menu_ID = models.ForeignKey(Order_menu, on_delete=models.CASCADE)
-    name = models.CharField(max_length=30, null=False)
-    cost = models.IntegerField(null=False)
-    IsDeleted = models.BooleanField(default=False)
-    createdAt = models.DateTimeField(auto_now_add=True)
-    updatedAt = models.DateTimeField(auto_now=True)
-    
-    def __str__(self):
-        return self.name
