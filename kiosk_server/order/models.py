@@ -46,8 +46,13 @@ class Menu(models.Model):
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)
     
+    class Meta:
+        db_table = 'Menu'
+    
     def __str__(self):
         return self.name
+
+
     
 class Order(models.Model):
     ID = models.AutoField(primary_key=True, null=False)
