@@ -1,9 +1,9 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.permissions import IsAuthenticated
-from .models import Category
-from .serializers import CategorySerializer
+from .models import Category, Menu
+from .serializers import CategorySerializer, MenuSerializer
 from rest_framework.exceptions import AuthenticationFailed
 
 class CategoryListView(APIView):
@@ -57,3 +57,15 @@ class CategoryUpdateView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Category.DoesNotExist:
             return Response({"error": "CATEGORY_NOT_FOUND", "code": "CATEGORY-001", "message": "존재하지 않는 카테고리입니다."}, status=status.HTTP_404_NOT_FOUND)
+        
+class MenuListCreateView(generics.ListCreateAPIView):
+    serializer_class = MenuSerializer
+
+    def get_queryset(self):
+        category_id = self.kwargs['category_id']
+        return Menu.objects.filter(category_ID=category_id)
+
+    def perform_create(self, serializer):
+        category_id = self.kwargs['category_id']
+        category = Category.objects.get(pk=category_id)
+        serializer.save(category_ID=category)
