@@ -5,7 +5,7 @@ from django.utils import timezone
 # 아래는 카테고리, 옵션, 옵션 선택지 모델
 class Category(models.Model):
     id = models.AutoField(primary_key=True)
-    owner_id = models.ForeignKey(CustomUser, on_delete=models.CASCADE) # onwer별로 카테고리 관리하기 위한 모델
+    owner_id = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='categories')
     category_name = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

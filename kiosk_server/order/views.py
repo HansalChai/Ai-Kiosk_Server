@@ -11,7 +11,7 @@ class CategoryListAddView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        categories = Category.objects.filter(is_deleted=False, owner_id=request.user)
+        categories = Category.objects.filter(is_deleted=False, owner_id=request.user.id)
         serializer = CategorySerializer(categories, many=True)
         return Response({"categories": serializer.data}, status=status.HTTP_200_OK)
 
@@ -163,27 +163,37 @@ class MenuDetailView(generics.RetrieveUpdateDestroyAPIView):
         instance.save()
 
 class OrderAmountView(APIView):
-    def post(self, request, *args, **kwangs):
+
+    def post(self, request, *args, **kwargs):
         menu_id = request.data.get('menu_id')
         age_range = request.data.get('age_range')
         
         order_menus = Order_menu.objects.filter(menu_id=menu_id)
         
+        if not order_menus.exists():
+            return Response({"detail": "Order_menu가 비어있습니다."}, status=status.HTTP_404_NOT_FOUND)
+        
+        order_amount, created = Order_amount.objects.get_or_create(menu_id=menu_id)
+        
         for order_menu in order_menus:
             count = order_menu.count
-            order_amount, created = Order_amount.objects.get_or_create(menu_id=menu_id)
-            order_amount.save()
-            
-            if age_range == '0-2' or '4-6' or '8-12':
+
+            if age_range in ['0-2', '4-6', '8-12']:
                 order_amount.teenager += count
-            elif age_range == '15-20' or '25-32':
+            elif age_range in ['15-20', '25-32']:
                 order_amount.adult += count
-            elif age_range == '38-43' or '48-53':
+            elif age_range in ['38-43', '48-53']:
                 order_amount.elder += count
             elif age_range == '60-100':
                 order_amount.aged += count
-            
-            order_amount.save()
+
+        order_amount.save()
         
+        serializer = OrderAmountSerializer(order_amount)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def get(self, request, *args, **kwargs):
+        menu_id = request.query_params.get('menu_id')
+        order_amount = Order_amount.objects.get(menu_id=menu_id)
         serializer = OrderAmountSerializer(order_amount)
         return Response(serializer.data, status=status.HTTP_200_OK)
