@@ -2,8 +2,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics
 from rest_framework.permissions import IsAuthenticated
-from .models import Category, Options, OptionChoice, Menu, Order_amount, Order_menu
-from .serializers import CategorySerializer, MenuSerializer, OptionSerializer, OptionChoiceSerializer, OrderAmountSerializer
+from .models import Category, Options, OptionChoice, Menu, Order_amount, Order_menu, Order
+from .serializers import CategorySerializer, MenuSerializer, OptionSerializer, OptionChoiceSerializer, OrderAmountSerializer, OrderSerializer
 from rest_framework.exceptions import AuthenticationFailed
 
 # 카테고리 불러오기, 추가 API
@@ -197,3 +197,14 @@ class OrderAmountView(APIView):
         order_amount = Order_amount.objects.get(menu_id=menu_id)
         serializer = OrderAmountSerializer(order_amount)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class OrderCreateView(generics.CreateAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
