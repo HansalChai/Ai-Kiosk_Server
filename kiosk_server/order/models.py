@@ -53,7 +53,7 @@ class Menu(models.Model):
     
 class Order(models.Model):
     id = models.AutoField(primary_key=True, null=False)
-    membership_id = models.ForeignKey(Membership, on_delete=models.CASCADE)
+    membership_id = models.ForeignKey(Membership, on_delete=models.CASCADE, null=True)
     total_price = models.IntegerField(null=False)
     order_num = models.IntegerField(null=False)
     order_age = models.IntegerField(null=False)
