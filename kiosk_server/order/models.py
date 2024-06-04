@@ -17,7 +17,7 @@ class Category(models.Model):
 class Options(models.Model):
     id = models.AutoField(primary_key=True, null=False)
     category_id = models.ForeignKey(Category, on_delete=models.CASCADE)
-    options_name = models.CharField(max_length=30, null=False)
+    option_name = models.CharField(max_length=30, null=False)
     is_deleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -28,7 +28,7 @@ class Options(models.Model):
 
 class OptionChoice(models.Model):
     id = models.AutoField(primary_key=True)
-    options_id = models.ForeignKey(Options, related_name='choices', on_delete=models.CASCADE)
+    option_id = models.ForeignKey(Options, related_name='choices', on_delete=models.CASCADE)
     choice_name = models.CharField(max_length=100)
     extra_cost = models.IntegerField(default=0)
     is_deleted = models.BooleanField(default=False)
