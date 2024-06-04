@@ -139,6 +139,7 @@ class OptionDeleteView(APIView):
 
 
 class MenuListCreateView(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = MenuSerializer
 
     def get_queryset(self):
@@ -151,6 +152,7 @@ class MenuListCreateView(generics.ListCreateAPIView):
         serializer.save(category_id=category)
  
 class MenuDetailView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
     queryset = Menu.objects.all()
     serializer_class = MenuSerializer
 
@@ -208,3 +210,4 @@ class OrderCreateView(generics.CreateAPIView):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    
