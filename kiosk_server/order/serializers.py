@@ -1,6 +1,7 @@
 # kiosk_server/categories/serializers.py
 
 from rest_framework import serializers
+from rest_framework.response import Response
 from .models import Category, Options, OptionChoice, Menu, Order_amount, Order, Order_menu, Order_choice_order_menu
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -8,13 +9,13 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ['id', 'category_name', 'owner_id', 'is_deleted']
+        fields = ['id', 'category_name', 'owner_id']
 
     def create(self, validated_data):
         request = self.context.get('request')
         owner_id = request.user
-        validated_data['owner_id'] = owner_id
-        return super().create(validated_data)
+        validated_data.pop('owner', None)  # 중복 전달 피하기 위해 owner 잠시 제거함
+        return Category.objects.create(owner_id=owner_id, **validated_data)
 
 
 class OptionChoiceSerializer(serializers.ModelSerializer):
@@ -24,11 +25,11 @@ class OptionChoiceSerializer(serializers.ModelSerializer):
 
 class OptionSerializer(serializers.ModelSerializer):
     choices = OptionChoiceSerializer(many=True)
-    category_id = serializers.IntegerField(write_only=True)
+    # owner = serializers.ReadOnlyField(source='owner.username')
 
     class Meta:
         model = Options
-        fields = ['id', 'category_id', 'option_name', 'is_deleted', 'choices']
+        fields = ['id', 'option_name', 'choices']
 
     def create(self, validated_data):
         choices_data = validated_data.pop('choices', [])
@@ -36,6 +37,7 @@ class OptionSerializer(serializers.ModelSerializer):
         for choice_data in choices_data:
             OptionChoice.objects.create(option_id=option, **choice_data)
         return option
+
 
 class MenuSerializer(serializers.ModelSerializer):
     category_id = serializers.ReadOnlyField(source='category_id.id')
