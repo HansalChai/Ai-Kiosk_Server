@@ -192,7 +192,7 @@ REST_AUTH = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(hours=1),
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(hours=10),
     'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=14),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
