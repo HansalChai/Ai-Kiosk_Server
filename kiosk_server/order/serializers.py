@@ -47,10 +47,6 @@ class MenuSerializer(serializers.ModelSerializer):
         fields = ['id', 'category_id', 'name', 'image', 'price', 'is_deleted', 'created_at', 'updated_at']
 
 class OrderAmountSerializer(serializers.ModelSerializer):
-    teenager = serializers.IntegerField()
-    adult = serializers.IntegerField()
-    elder = serializers.IntegerField()
-    aged = serializers.IntegerField()
     class Meta:
         model = Order_amount
         fields = '__all__'
