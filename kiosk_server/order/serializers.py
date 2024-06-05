@@ -62,14 +62,14 @@ class OrderChoiceOrderMenuSerializer(serializers.ModelSerializer):
         fields = ['option_choice_id']
 
 class OrderMenuSerializer(serializers.ModelSerializer):
-    options = OrderChoiceOrderMenuSerializer(many=True)
+    options = OrderChoiceOrderMenuSerializer(many=True, allow_null=True, required=False)
 
     class Meta:
         model = Order_menu
         fields = ['menu_id', 'count', 'options']
 
     def create(self, validated_data):
-        options_data = validated_data.pop('options')
+        options_data = validated_data.pop('options',[])
         order_menu = Order_menu.objects.create(**validated_data)
         for option_data in options_data:
             option_choice = OptionChoice.objects.get(id=option_data['option_choice_id'].id)

@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status, generics
 from rest_framework.permissions import IsAuthenticated
 from .models import Category, Options, OptionChoice, Menu, Order_amount, Order_menu, Order
-from .serializers import CategorySerializer, MenuSerializer, OptionSerializer, OptionChoiceSerializer, OrderAmountSerializer, OrderSerializer
+from .serializers import CategorySerializer, MenuSerializer, OptionSerializer, OptionChoiceSerializer, OrderAmountSerializer, OrderSerializer, Order_choice_order_menu
 from rest_framework.exceptions import AuthenticationFailed
 
 # 카테고리 불러오기, 추가 API
@@ -228,9 +228,20 @@ class OrderCreateView(generics.CreateAPIView):
     serializer_class = OrderSerializer
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-    
+        order_data = request.data
+        order_serializer = self.get_serializer(data=order_data)
+        order_serializer.is_valid(raise_exception=True)
+
+        order_menus_data = order_data.pop('order_menus')
+        order = Order.objects.create(**order_data)
+
+        for order_menu_data in order_menus_data:
+            options_data = order_menu_data.pop('options')
+            menu = Menu.objects.get(id=order_menu_data.pop('menu_id'))
+            order_menu = Order_menu.objects.create(order_id=order, menu_id=menu, **order_menu_data)
+            for option_data in options_data:
+                option_choice = OptionChoice.objects.get(id=option_data['option_choice_id'])
+                Order_choice_order_menu.objects.create(order_menu_id=order_menu, option_choice_id=option_choice)
+
+        headers = self.get_success_headers(order_serializer.data)
+        return Response(order_serializer.data, status=status.HTTP_201_CREATED, headers=headers)
