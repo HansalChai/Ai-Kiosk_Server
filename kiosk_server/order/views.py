@@ -233,15 +233,25 @@ class OrderCreateView(generics.CreateAPIView):
         order_serializer.is_valid(raise_exception=True)
 
         order_menus_data = order_data.pop('order_menus')
-        order = Order.objects.create(**order_data)
+        total_price = 0
+        
+        order = Order.objects.create(**order_data, total_price=0)
 
         for order_menu_data in order_menus_data:
             options_data = order_menu_data.pop('options')
             menu = Menu.objects.get(id=order_menu_data.pop('menu_id'))
             order_menu = Order_menu.objects.create(order_id=order, menu_id=menu, **order_menu_data)
+            total_price += menu.price * order_menu.count
+            
             for option_data in options_data:
                 option_choice = OptionChoice.objects.get(id=option_data['option_choice_id'])
+                total_price += option_choice.extra_cost
                 Order_choice_order_menu.objects.create(order_menu_id=order_menu, option_choice_id=option_choice)
+
+        order.total_price = total_price
+        order.save()
 
         headers = self.get_success_headers(order_serializer.data)
         return Response(order_serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
