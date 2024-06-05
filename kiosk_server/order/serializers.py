@@ -38,10 +38,9 @@ class OptionSerializer(serializers.ModelSerializer):
             OptionChoice.objects.create(option_id=option, **choice_data)
         return option
 
-
 class MenuSerializer(serializers.ModelSerializer):
     category_id = serializers.ReadOnlyField(source='category_id.id')
-    
+    image = serializers.ImageField(use_url=True)
     class Meta:
         model = Menu
         fields = ['id', 'category_id', 'name', 'image', 'price', 'is_deleted', 'created_at', 'updated_at']
