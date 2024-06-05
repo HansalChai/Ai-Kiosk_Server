@@ -78,7 +78,7 @@ class Order_amount(models.Model):
     
     class Meta:
         db_table = 'Order_amount'
-    
+
 class Order_menu(models.Model):
     id = models.AutoField(primary_key=True, null=False)
     order_id = models.ForeignKey(Order, on_delete=models.CASCADE)

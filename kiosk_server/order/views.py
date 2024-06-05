@@ -188,60 +188,60 @@ class MenuDetailView(generics.RetrieveUpdateDestroyAPIView):
         instance.save()
 
 # 주문 관련 API
-class OrderAmountView(APIView):
+# class OrderAmountView(APIView):
 
-    def post(self, request, *args, **kwargs):
-        menu_id = request.data.get('menu_id')
-        age_range = request.data.get('age_range')
+#     def post(self, request, *args, **kwargs):
+#         menu_id = request.data.get('menu_id')
+#         age_range = request.data.get('age_range')
         
-        try:
-            menu = Menu.objects.get(id=menu_id)
-        except Menu.DoesNotExist:
-            return Response({"detail": "Menu가 존재하지 않습니다."}, status=status.HTTP_404_NOT_FOUND)
+#         try:
+#             menu = Menu.objects.get(id=menu_id)
+#         except Menu.DoesNotExist:
+#             return Response({"detail": "Menu가 존재하지 않습니다."}, status=status.HTTP_404_NOT_FOUND)
         
-        order_menus = Order_menu.objects.filter(menu_id=menu)
+#         order_menus = Order_menu.objects.filter(menu_id=menu)
         
-        if not order_menus.exists():
-            return Response({"detail": "Order_menu가 비어있습니다."}, status=status.HTTP_404_NOT_FOUND)
+#         if not order_menus.exists():
+#             return Response({"detail": "Order_menu가 비어있습니다."}, status=status.HTTP_404_NOT_FOUND)
         
-        order_amount, created = Order_amount.objects.get_or_create(menu_id=menu)
-        total_count = sum(order_menu.count for order_menu in order_menus)
+#         order_amount, created = Order_amount.objects.get_or_create(menu_id=menu)
+#         total_count = sum(order_menu.count for order_menu in order_menus)
         
-        if age_range in ['0-2', '4-6', '8-12']:
-            order_amount.teenager += total_count
-        elif age_range in ['15-20', '25-32']:
-            order_amount.adult += total_count
-        elif age_range in ['38-43', '48-53']:
-            order_amount.elder += total_count
-        elif age_range == '60-100':
-            order_amount.aged += total_count
-        else:
-            return Response({"detail": "유효하지 않은 age_range 값입니다."}, status=status.HTTP_400_BAD_REQUEST)
+#         if age_range in ['0-2', '4-6', '8-12']:
+#             order_amount.teenager += total_count
+#         elif age_range in ['15-20', '25-32']:
+#             order_amount.adult += total_count
+#         elif age_range in ['38-43', '48-53']:
+#             order_amount.elder += total_count
+#         elif age_range == '60-100':
+#             order_amount.aged += total_count
+#         else:
+#             return Response({"detail": "유효하지 않은 age_range 값입니다."}, status=status.HTTP_400_BAD_REQUEST)
         
-        order_amount.save()
+#         order_amount.save()
         
-        serializer = OrderAmountSerializer(order_amount)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+#         serializer = OrderAmountSerializer(order_amount)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def get(self, request, *args, **kwargs):
-        age_range = request.data.get('age_range')  # 예: "teenager", "adult"
+#     def get(self, request, *args, **kwargs):
+#         age_range = request.data.get('age_range')  # 예: "teenager", "adult"
         
-        if not age_range:
-            return Response({"detail": "나이 값 범위가 필요합니다."}, status=status.HTTP_400_BAD_REQUEST)
+#         if not age_range:
+#             return Response({"detail": "나이 값 범위가 필요합니다."}, status=status.HTTP_400_BAD_REQUEST)
         
-        if age_range not in ['teenager', 'adult', 'elder', 'aged']:
-            return Response({"detail": "올바른 나이 값 범위를 입력해주세요."}, status=status.HTTP_400_BAD_REQUEST)
+#         if age_range not in ['teenager', 'adult', 'elder', 'aged']:
+#             return Response({"detail": "올바른 나이 값 범위를 입력해주세요."}, status=status.HTTP_400_BAD_REQUEST)
         
-        order_amounts = Order_amount.objects.filter(is_deleted=False).values('menu_id', age_range)
+#         order_amounts = Order_amount.objects.filter(is_deleted=False).values('menu_id', age_range)
         
-        result = []
-        for order_amount in order_amounts:
-            result.append({
-                "menu_id": order_amount['menu_id'],
-                age_range: order_amount[age_range]
-            })
+#         result = []
+#         for order_amount in order_amounts:
+#             result.append({
+#                 "menu_id": order_amount['menu_id'],
+#                 age_range: order_amount[age_range]
+#             })
         
-        return Response(result, status=status.HTTP_200_OK)
+#         return Response(result, status=status.HTTP_200_OK)
 
 class OrderCreateView(generics.CreateAPIView):
     queryset = Order.objects.all()
@@ -256,12 +256,28 @@ class OrderCreateView(generics.CreateAPIView):
         total_price = 0
         
         order = Order.objects.create(**order_data, total_price=0)
+        
+        age_range = request.data.get('order_age')
 
         for order_menu_data in order_menus_data:
             options_data = order_menu_data.pop('options')
             menu = Menu.objects.get(id=order_menu_data.pop('menu_id'))
             order_menu = Order_menu.objects.create(order_id=order, menu_id=menu, **order_menu_data)
             total_price += menu.price * order_menu.count
+
+            # Update Order_amount
+            order_amount, created = Order_amount.objects.get_or_create(menu_id=menu)
+            if age_range in ['0-2', '4-6', '8-12']:
+                order_amount.teenager += order_menu.count
+            elif age_range in ['15-20', '25-32']:
+                order_amount.adult += order_menu.count
+            elif age_range in ['38-43', '48-53']:
+                order_amount.elder += order_menu.count
+            elif age_range == '60-100':
+                order_amount.aged += order_menu.count
+            else:
+                return Response({"detail": "유효하지 않은 age_range 값입니다."}, status=status.HTTP_400_BAD_REQUEST)
+            order_amount.save()
             
             for option_data in options_data:
                 option_choice = OptionChoice.objects.get(id=option_data['option_choice_id'])
