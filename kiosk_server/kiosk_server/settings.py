@@ -103,10 +103,6 @@ WSGI_APPLICATION = 'kiosk_server.wsgi.application'
 
 CORS_ALLOW_CREDENTIALS = True
 
-
-# Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -217,3 +213,13 @@ AUTHENTICATION_BACKENDS = (
 )
 
 ACCOUNT_ADAPTER = 'accounts.adapters.CustomAccountAdapter'
+
+# 최대 파일 크기 (5MB)
+MAX_UPLOAD_SIZE = 5242880
+
+# 허용되는 파일 형식
+ALLOWED_FILE_TYPES = [
+    'image/jpeg',
+    'image/png',
+    'image/jpg',
+]
