@@ -56,7 +56,7 @@ class Order(models.Model):
     membership_id = models.ForeignKey(Membership, on_delete=models.CASCADE, null=True)
     total_price = models.IntegerField(null=False)
     order_num = models.IntegerField(null=False)
-    order_age = models.IntegerField(null=False)
+    order_age = models.CharField(max_length=10)
     package = models.BooleanField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

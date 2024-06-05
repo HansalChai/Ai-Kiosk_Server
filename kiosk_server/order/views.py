@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Category, Options, OptionChoice, Menu, Order_amount, Order_menu, Order
 from .serializers import CategorySerializer, MenuSerializer, OptionSerializer, OptionChoiceSerializer, OrderAmountSerializer, OrderSerializer, Order_choice_order_menu
 from rest_framework.exceptions import AuthenticationFailed
+import json
 
 # 카테고리 불러오기, 추가 API
 class CategoryListAddView(APIView):
@@ -193,35 +194,54 @@ class OrderAmountView(APIView):
         menu_id = request.data.get('menu_id')
         age_range = request.data.get('age_range')
         
-        order_menus = Order_menu.objects.filter(menu_id=menu_id)
+        try:
+            menu = Menu.objects.get(id=menu_id)
+        except Menu.DoesNotExist:
+            return Response({"detail": "Menu가 존재하지 않습니다."}, status=status.HTTP_404_NOT_FOUND)
+        
+        order_menus = Order_menu.objects.filter(menu_id=menu)
         
         if not order_menus.exists():
             return Response({"detail": "Order_menu가 비어있습니다."}, status=status.HTTP_404_NOT_FOUND)
         
-        order_amount, created = Order_amount.objects.get_or_create(menu_id=menu_id)
+        order_amount, created = Order_amount.objects.get_or_create(menu_id=menu)
+        total_count = sum(order_menu.count for order_menu in order_menus)
         
-        for order_menu in order_menus:
-            count = order_menu.count
-
-            if age_range in ['0-2', '4-6', '8-12']:
-                order_amount.teenager += count
-            elif age_range in ['15-20', '25-32']:
-                order_amount.adult += count
-            elif age_range in ['38-43', '48-53']:
-                order_amount.elder += count
-            elif age_range == '60-100':
-                order_amount.aged += count
-
+        if age_range in ['0-2', '4-6', '8-12']:
+            order_amount.teenager += total_count
+        elif age_range in ['15-20', '25-32']:
+            order_amount.adult += total_count
+        elif age_range in ['38-43', '48-53']:
+            order_amount.elder += total_count
+        elif age_range == '60-100':
+            order_amount.aged += total_count
+        else:
+            return Response({"detail": "유효하지 않은 age_range 값입니다."}, status=status.HTTP_400_BAD_REQUEST)
+        
         order_amount.save()
         
         serializer = OrderAmountSerializer(order_amount)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
     def get(self, request, *args, **kwargs):
-        menu_id = request.query_params.get('menu_id')
-        order_amount = Order_amount.objects.get(menu_id=menu_id)
-        serializer = OrderAmountSerializer(order_amount)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        age_range = request.data.get('age_range')  # 예: "teenager", "adult"
+        
+        if not age_range:
+            return Response({"detail": "나이 값 범위가 필요합니다."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if age_range not in ['teenager', 'adult', 'elder', 'aged']:
+            return Response({"detail": "올바른 나이 값 범위를 입력해주세요."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        order_amounts = Order_amount.objects.filter(is_deleted=False).values('menu_id', age_range)
+        
+        result = []
+        for order_amount in order_amounts:
+            result.append({
+                "menu_id": order_amount['menu_id'],
+                age_range: order_amount[age_range]
+            })
+        
+        return Response(result, status=status.HTTP_200_OK)
 
 class OrderCreateView(generics.CreateAPIView):
     queryset = Order.objects.all()
@@ -251,7 +271,42 @@ class OrderCreateView(generics.CreateAPIView):
         order.total_price = total_price
         order.save()
 
+        # OrderAmount 업데이트 로직 추가
+        self.update_order_amount(order_data['order_age'], order_menus_data)
+
         headers = self.get_success_headers(order_serializer.data)
         return Response(order_serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    
+    def update_order_amount(self, order_age, order_menus_data):
+        for order_menu_data in order_menus_data:
+            menu_id = order_menu_data['menu_id']
+            count = order_menu_data['count']
+            
+            try:
+                menu = Menu.objects.get(id=menu_id)
+            except Menu.DoesNotExist:
+                continue  # Menu가 존재하지 않으면 해당 메뉴는 건너뜁니다.
+            
+            order_menus = Order_menu.objects.filter(menu_id=menu)
+            
+            if not order_menus.exists():
+                continue  # Order_menu가 비어있으면 해당 메뉴는 건너뜁니다.
+            
+            total_count = order_menus.count()
 
+            order_amount, created = Order_amount.objects.get_or_create(menu_id=menu)
+            
+            # order_age 값에 따라 적절한 필드 업데이트
+            if order_age in ['0-2', '4-6', '8-12']:
+                order_amount.teenager = total_count
+            elif order_age in ['15-20', '25-32']:
+                order_amount.adult = total_count
+            elif order_age in ['38-43', '48-53']:
+                order_amount.elder = total_count
+            elif order_age == '60-100':
+                order_amount.aged = total_count
+            else:
+                continue  # 유효하지 않은 age_range 값은 건너뜁니다.
+            
+            order_amount.save()
 
