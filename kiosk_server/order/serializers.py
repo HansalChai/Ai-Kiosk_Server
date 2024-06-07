@@ -44,6 +44,11 @@ class MenuSerializer(serializers.ModelSerializer):
     class Meta:
         model = Menu
         fields = ['id', 'category_id', 'name', 'image', 'price', 'is_deleted', 'created_at', 'updated_at']
+        
+    def get_image(self, obj):
+        request = self.context.get('request')
+        image_url = obj.image.url
+        return request.build_absolute_uri(image_url)
 
 class OrderAmountSerializer(serializers.ModelSerializer):
     class Meta:
