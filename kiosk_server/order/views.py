@@ -99,21 +99,53 @@ class OptionsListAddView(APIView):
         try:
             category = Category.objects.get(id=category_id, is_deleted=False, owner_id=request.user)
             options_data = request.data.get('options', [])
+            options = []
             for option_data in options_data:
                 option = Options(
-                    id = option_data.get('id'),
-                    option_name=option_data['option_name'], 
+                    option_name=option_data['option_name'],
                     category_id=category,
-                    # order_menu_ID=None if request.user.is_owner else option_data.get('order_menu_ID')
-                    # order_menu_id=option_data.get('order_menu_id') # 관리자 페이지에서 order_menu_ID 값 null 허용
                 )
                 option.save()
+                choices = []
                 for choice_data in option_data['choices']:
                     choice = OptionChoice(choice_name=choice_data['choice_name'], extra_cost=choice_data['extra_cost'], option_id=option)
                     choice.save()
-            return Response({"message": "Option added successfully"}, status=status.HTTP_201_CREATED)
+                    choices.append(choice)
+                option.choices.set(choices)
+                options.append(option)
+            serializer = OptionSerializer(options, many=True)
+            return Response({"options": serializer.data, "message": "Option added successfully"}, status=status.HTTP_201_CREATED)
         except Category.DoesNotExist:
             return Response({"error": "CATEGORY_NOT_FOUND", "code": "CATEGORY-001", "message": "존재하지 않는 카테고리입니다."}, status=status.HTTP_404_NOT_FOUND)
+
+
+# class OptionsListAddView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request, category_id):
+#         options = Options.objects.filter(category_id=category_id, is_deleted=False)
+#         serializer = OptionSerializer(options, many=True, context={'view': self})
+#         return Response({"options": serializer.data}, status=status.HTTP_200_OK)
+
+#     def post(self, request, category_id):
+#         try:
+#             category = Category.objects.get(id=category_id, is_deleted=False, owner_id=request.user)
+#             options_data = request.data.get('options', [])
+#             for option_data in options_data:
+#                 option = Options(
+#                     id = option_data.get('id'),
+#                     option_name=option_data['option_name'], 
+#                     category_id=category,
+#                     # order_menu_ID=None if request.user.is_owner else option_data.get('order_menu_ID')
+#                     # order_menu_id=option_data.get('order_menu_id') # 관리자 페이지에서 order_menu_ID 값 null 허용
+#                 )
+#                 option.save()
+#                 for choice_data in option_data['choices']:
+#                     choice = OptionChoice(choice_name=choice_data['choice_name'], extra_cost=choice_data['extra_cost'], option_id=option)
+#                     choice.save()
+#             return Response({"message": "Option added successfully"}, status=status.HTTP_201_CREATED)
+#         except Category.DoesNotExist:
+#             return Response({"error": "CATEGORY_NOT_FOUND", "code": "CATEGORY-001", "message": "존재하지 않는 카테고리입니다."}, status=status.HTTP_404_NOT_FOUND)
 
 # 옵션 수정 API
 class OptionUpdateView(APIView):

@@ -19,9 +19,10 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class OptionChoiceSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = OptionChoice
-        fields = ['choice_name', 'extra_cost']
+        fields = ['id', 'choice_name', 'extra_cost']
 
 class OptionSerializer(serializers.ModelSerializer):
     choices = OptionChoiceSerializer(many=True)
@@ -54,11 +55,6 @@ class OrderAmountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order_amount
         fields = '__all__'
-
-class OptionChoiceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = OptionChoice
-        fields = ['id', 'choice_name', 'extra_cost']
 
 class OrderChoiceOrderMenuSerializer(serializers.ModelSerializer):
     class Meta:
