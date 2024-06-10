@@ -103,6 +103,8 @@ WSGI_APPLICATION = 'kiosk_server.wsgi.application'
 
 CORS_ALLOW_CREDENTIALS = True
 
+CORS_ALLOW_ALL_ORIGINS = True
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
