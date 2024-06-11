@@ -230,6 +230,7 @@ class OrderAmountView(APIView):
             return Response({"detail": "해당 사용자의 카테고리가 없습니다."}, status=status.HTTP_404_NOT_FOUND)
         
         menus = Menu.objects.filter(is_deleted=False, category_id__in=categories.values('id'))
+        menu_dict = {menu.id: menu.name for menu in menus}
         menu_ids = menus.values_list('id', flat=True)
         
         age_range = request.data.get('age_range')
@@ -246,6 +247,7 @@ class OrderAmountView(APIView):
         for order_amount in order_amounts:
             result.append({
                 "menu_id": order_amount['menu_id'],
+                "menu_name": menu_dict.get(order_amount['menu_id']),
                 age_range: order_amount[age_range]
             })
         
